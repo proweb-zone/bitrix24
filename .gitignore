@@ -1,0 +1,12 @@
+*.log
+*.txt
+
+.htsecure
+
+/www/bitrix/*
+/www/urlrewrite.php
+/www/upload
+
+# Others files project
+/tmp
+/logs

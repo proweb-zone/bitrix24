@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # MySQL сервер
+  mysql:
+    image: mysql:8.0
+    container_name: bitrix_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: bitrix-test
+      MYSQL_USER: bitrix_user
+      MYSQL_PASSWORD: bitrix_password
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "3306:3306"
+    networks:
+      - bitrix_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Apache + PHP
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bitrix_web
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    volumes:
+      - ./www:/var/www/html
+      - ./tmp:/home/session
+      - ./php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./logs/apache:/var/log/apache2
+      - ./apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=bitrix
+      - MYSQL_USER=bitrix_user
+      - MYSQL_PASSWORD=bitrix_password
+    networks:
+      - bitrix_network
+
+  # phpMyAdmin (опционально)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: bitrix_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    ports:
+      - "8080:80"
+    networks:
+      - bitrix_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  bitrix_network:
+    driver: bridge
