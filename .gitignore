@@ -10,4 +10,4 @@
 # Others files project
 /tmp
 /logs
-/mysql/data
+/mysql/data/*
