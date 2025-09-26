@@ -11,3 +11,6 @@
 /tmp
 /logs
 /mysql/data/*
+
+/push_server/node_modules
+/push_server/package-lock.json

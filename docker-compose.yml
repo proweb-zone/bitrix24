@@ -9,7 +9,7 @@ services:
       - "443:443"
     volumes:
       - ./www:/var/www/html/
-      - ./nginx/bitrix.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/bitrix.conf:/etc/nginx/nginx.conf
     depends_on:
       - php
     networks:
@@ -51,6 +51,28 @@ services:
     depends_on:
       - mysql
       - redis
+    networks:
+      - bitrix24-network
+  # Push Server на основе готового образа Node.js
+  push-server:
+    image: node:16-alpine
+    container_name: bitrix-push-server
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "8893:8893"
+      - "8894:8894"
+    volumes:
+      - ./push_server:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PUSH_PORT=8893
+      - SUBSCRIBE_PORT=8894
+      - SIGNATURE_KEY=your-secret-key-123
+    depends_on:
+      - redis
+    command: sh -c "cd /app && npm install && node server.js"
     networks:
       - bitrix24-network
 
