@@ -13,7 +13,7 @@ const PUSH_PORT = process.env.PUSH_PORT || 8893;
 const SUBSCRIBE_PORT = process.env.SUBSCRIBE_PORT || 8894;
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
-const SIGNATURE_KEY = process.env.SIGNATURE_KEY || 'default-secret-key';
+const SIGNATURE_KEY = process.env.SIGNATURE_KEY || 'your-secret-key-123';
 
 // Middleware
 app.use(bodyParser.json());
@@ -87,6 +87,7 @@ wss.on('connection', (ws, request) => {
 // HTTP endpoints для публикации сообщений (Bitrix API)
 app.post('/bitrix/sub/', async (req, res) => {
     try {
+      console.log(req.body);
         const { channel, message, signature } = req.body;
 
         console.log('📨 Received push request:', { channel, signature });
